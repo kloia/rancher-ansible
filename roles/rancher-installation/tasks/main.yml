@@ -1,0 +1,41 @@
+---
+
+- name: Create tls-rancher-ingress secret
+  shell: |
+    kubectl --kubeconfig {{ kubeconfigPath }} -n cattle-system create secret tls tls-rancher-ingress \
+      --cert={{ tlsCertPath }} \
+      --key={{ tlsKeyPath }}
+
+- name: Create tls-ca secret
+  shell: |
+    kubectl --kubeconfig {{ kubeconfigPath }} -n cattle-system create secret generic tls-ca \
+      --from-file=cacerts.pem={{ caCertPath }}
+  when: privateCA
+
+- name: Add Rancher Stable HELM repository
+  shell: |
+    helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
+    helm repo update
+
+- name: Create cattle-system namespace
+  shell: kubectl create namespace cattle-system --kubeconfig {{ kubeconfigPath }}
+
+- name: Install Rancher with own certificate option
+  shell: |
+    helm install rancher rancher-stable/rancher \
+      --kubeconfig {{ kubeconfigPath }} \
+      --namespace cattle-system \
+      --set hostname={{ hostname }} \
+      --set bootstrapPassword={{ bootstrapPassword }} \
+      --set ingress.tls.source=secret \
+      --set privateCA={{ privateCA }}
+
+- name: Check Rancher deployment
+  shell: |
+    set -o pipefail
+    kubectl --kubeconfig {{ kubeconfigPath }} -n cattle-system rollout status deploy/rancher | grep "rolled out"
+  register: rancherDeploymentResult
+  until:
+    - '" successfully "  in rancherDeploymentResult.stdout'
+  retries: 60
+  delay: 10

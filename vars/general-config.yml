@@ -1,0 +1,17 @@
+---
+
+# Admin user password for Rancher
+bootstrapPassword: "admin"
+
+# Hostname should match the CN at the tls certificate
+hostname: "rancher"
+
+# TLS Options
+# Set privateCA to true if your certificate signed by a private certificate authority
+privateCA: true
+tlsCertPath: "/app/tls.crt"
+tlsKeyPath: "/app/tls.key"
+caCertPath: "/app/ca.crt"
+
+# Kubeconfig file of the cluster that Rancher will be installed
+kubeconfigPath: "/app/kubeconfig"
