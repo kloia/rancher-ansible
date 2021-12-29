@@ -15,3 +15,5 @@ caCertPath: "/app/ca.crt"
 
 # Kubeconfig file of the cluster that Rancher will be installed
 kubeconfigPath: "/app/kubeconfig"
+
+additionalHostname: ""
