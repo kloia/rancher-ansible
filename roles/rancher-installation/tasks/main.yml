@@ -39,3 +39,12 @@
     - '" successfully "  in rancherDeploymentResult.stdout'
   retries: 60
   delay: 10
+
+- name: Create additional hostname/ingress
+  kubernetes.core.k8s:
+    state: present
+    template:
+      - path: "additionalIngressTemplate.yml.j2"
+  environment:
+    KUBECONFIG: "{{ kubeconfigPath }}"
+  when: additionalHostname != ""
