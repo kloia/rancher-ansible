@@ -1,0 +1,5 @@
+- name: Add longhorn helm repo
+  shell: helm repo add longhorn https://charts.longhorn.io
+
+- name: Install longhorn
+  shell: helm upgrade longhorn longhorn/longhorn --install --namespace longhorn-system --create-namespace
