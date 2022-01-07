@@ -1,0 +1,29 @@
+---
+
+# Admin user password for Rancher
+bootstrapPassword: "admin"
+
+# Hostname should match the CN at the tls certificate
+hostname: ""
+
+# Cert manager options
+# Disable if ingress_tls_source will be 'secret'
+# cert_manager_enabled: true
+# cert_manager_version: "v1.5.1"
+
+#
+# TLS Options
+#
+# Options: 'rancher', 'letsEncrypt', 'secret'
+# ingress_tls_source: "rancher"
+#
+# Change these certificate paths to install your own certificate
+# tlsCertPath: "/app/tls.crt"
+# tlsKeyPath: "/app/tls.key"
+# caCertPath: "/app/ca.crt"
+#
+# Set privateCA to true if your certificate signed by a private certificate authority
+# privateCA: false
+#
+# letsEncryptEmail: ""
+#

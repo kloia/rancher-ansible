@@ -3,4 +3,4 @@
 ansible-playbook \
     --connection=ssh \
     --timeout=30 \
-    rancher.yml
+    playbooks/rancher.yml

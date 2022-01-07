@@ -1,0 +1,10 @@
+---
+
+- hosts: 127.0.0.1
+  connection: local
+  roles:
+    - ../roles/pre
+    - ../roles/rancher-installation
+  vars_files:
+    - ../vars/general-config.yml
+    - ../vars/rancher-config.yml

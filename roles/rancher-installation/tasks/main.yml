@@ -1,25 +1,16 @@
 ---
 
-- name: Create tls-rancher-ingress secret
-  shell: |
-    kubectl --kubeconfig {{ kubeconfigPath }} -n cattle-system create secret tls tls-rancher-ingress \
-      --cert={{ tlsCertPath }} \
-      --key={{ tlsKeyPath }}
-
-- name: Create tls-ca secret
-  shell: |
-    kubectl --kubeconfig {{ kubeconfigPath }} -n cattle-system create secret generic tls-ca \
-      --from-file=cacerts.pem={{ caCertPath }}
-  when: privateCA
-
 - name: Add Rancher Stable HELM repository
   shell: |
     helm repo add rancher-stable https://releases.rancher.com/server-charts/stable
     helm repo update
 
 - name: Create cattle-system namespace
-  shell: kubectl create namespace cattle-system --kubeconfig {{ kubeconfigPath }}
-
+  shell: |
+    kubectl create namespace cattle-system \
+      --kubeconfig {{ kubeconfigPath }}
+  ignore_errors: true
+  
 - name: Install Rancher with own certificate option
   shell: |
     helm install rancher rancher-stable/rancher \
@@ -27,8 +18,9 @@
       --namespace cattle-system \
       --set hostname={{ hostname }} \
       --set bootstrapPassword={{ bootstrapPassword }} \
-      --set ingress.tls.source=secret \
-      --set privateCA={{ privateCA }}
+      --set ingress.tls.source={{ ingress_tls_source }} \
+      --set privateCA={{ privateCA }} \
+      --set letsEncrypt.email={{ letsEncryptEmail }}
 
 - name: Check Rancher deployment
   shell: |

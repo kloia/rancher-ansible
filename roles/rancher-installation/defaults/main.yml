@@ -1,0 +1,5 @@
+---
+
+ingress_tls_source: "rancher"
+privateCA: false
+letsEncryptEmail: ""

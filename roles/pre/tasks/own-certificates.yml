@@ -1,0 +1,13 @@
+---
+
+- name: Create tls-rancher-ingress secret
+  shell: |
+    kubectl --kubeconfig {{ kubeconfigPath }} -n cattle-system create secret tls tls-rancher-ingress \
+      --cert={{ tlsCertPath }} \
+      --key={{ tlsKeyPath }}
+
+- name: Create tls-ca secret
+  shell: |
+    kubectl --kubeconfig {{ kubeconfigPath }} -n cattle-system create secret generic tls-ca \
+      --from-file=cacerts.pem={{ caCertPath }}
+  when: privateCA

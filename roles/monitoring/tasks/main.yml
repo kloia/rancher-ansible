@@ -1,0 +1,79 @@
+---
+
+- name: Uninstall rancher-monitoring if clean_install enabled
+  shell: |
+    helm uninstall rancher-monitoring -n cattle-monitoring-system
+    helm uninstall rancher-monitoring-crd -n cattle-monitoring-system
+    kubectl delete ns cattle-monitoring-system
+  when: rancher_monitoring_clean_install
+
+- name: Git checkout rancher-charts
+  ansible.builtin.git:
+    repo: 'https://github.com/rancher/charts.git'
+    dest: /tmp/rancher-charts
+    version: dev-v2.6
+
+- name: Copy rancher-monitoring chart values.yml
+  copy:
+    src: rancher-monitoring-values.yml
+    dest: "{{ monitoring_values_file }}"
+
+- name: Template alertmanager configuration
+  template:
+    src: alertmanager.yaml
+    dest: /tmp/alertmanager.yaml
+
+- name: Create cattle-monitoring-system namespace
+  shell: kubectl create ns cattle-monitoring-system
+  ignore_errors: true
+
+- name: Create alertmanager config secret
+  shell: |
+    kubectl create secret generic {{ alertmanager_configSecret_name }} \
+      --from-file=/tmp/alertmanager.yaml \
+      -n cattle-monitoring-system
+
+- name: Deploy rancher-monitoring-crd chart
+  kubernetes.core.helm:
+    name: rancher-monitoring-crd
+    chart_ref: "{{ rancher_monitoring_folder_path }}/{{ rancher_monitoring_crd_chart_path }}"
+    release_namespace: cattle-monitoring-system
+    wait: True
+
+- name: Deploy rancher-monitoring chart
+  kubernetes.core.helm:
+    name: rancher-monitoring
+    chart_ref: "{{ rancher_monitoring_folder_path }}/{{ rancher_monitoring_chart_path }}"
+    release_namespace: cattle-monitoring-system
+    wait: True
+    values_files:
+    - "{{ monitoring_values_file}}"
+    release_values:
+      alertmanager:
+        alertmanagerSpec:
+          configSecret: "{{ alertmanager_configSecret_name }}"
+      grafana:
+        persistence:
+          storageClassName: "{{ grafana_storage_class_name }}"
+          size: "{{ grafana_storage_size }}"
+          enabled: "{{ grafana_storage_enabled }}"
+      prometheus:
+        prometheusSpec:
+          retention: "{{ prometheus_retention }}"
+          retentionSize: "{{ prometheus_retention_size }}"
+          storageSpec:
+            volumeClaimTemplate:
+              spec:
+                storageClassName: "{{ prometheus_storage_class_name }}"
+                resources:
+                  requests:
+                    storage: "{{ prometheus_storage_size }}"
+
+- name: Copy Longhorn ServiceMonitor manifest
+  copy:
+    src: longhorn-service-monitor.yml
+    dest: /tmp/longhorn-service-monitor.yml
+
+- name: Add Longhorn ServiceMonitor
+  shell: |
+    kubectl apply -f /tmp/longhorn-service-monitor.yml

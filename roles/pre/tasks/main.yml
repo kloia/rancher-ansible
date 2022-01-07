@@ -1,0 +1,9 @@
+---
+
+- name: Install Cert Manager
+  include_tasks: "cert-manager.yml"
+  when: cert_manager_enabled
+
+- name: Install Own Certificates
+  include_tasks: "own-certificates.yml"
+  when: not cert_manager_enabled
