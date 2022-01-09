@@ -1,0 +1,8 @@
+
+- hosts: localhost
+  roles:
+    - name: ../roles/logging
+      delegate_to: localhost
+      
+  vars_files:
+    - ../vars/general-config.yml
