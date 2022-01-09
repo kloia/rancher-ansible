@@ -27,6 +27,14 @@ Currently it uses privateCA signed certificates for TLS options.
 1. Update variables on `vars/monitoring-config` according to your installation and infrastructure
 2. Run `docker run -it -v $(pwd):/app rancher-ansible "./provision_rancher_monitoring.sh`
 
+### Logging Installation
+
+This playbook installs fluentd on all nodes(including masters). There is a feature enabled for reading
+ `/var/log/auth.log` and this feature gets root privilages on node. Please see https://github.com/fluen
+t/fluentd-kubernetes-daemonset#run-as-root for details.
+
+1. Update fluentd configuration on `roles/logging/files` if necessary.
+2. Run `docker run -it -v $(pwd):/app rancher-ansible "./provision_logging.sh`
 ## How to contribute
 
 You can check TODO.md for contributions and suggestions.

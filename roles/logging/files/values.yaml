@@ -650,8 +650,8 @@ aggregator:
       # Send the logs to the standard output
       <match **>
         @type gelf
-        host atrosloglc.atros.com.tr
-        port 12202
+        host 
+        port 
         <buffer>
           flush_interval 5s
         </buffer>
